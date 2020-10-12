@@ -1,0 +1,26 @@
+{
+  "name": "zimus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/index.js",
+  "bin": {
+    "zimus": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "rm -rf ./test/images/optimized && node . generate ./test/images"
+  },
+  "author": "Vodkhard (Hugo Knorr)",
+  "license": "MIT",
+  "dependencies": {
+    "boxen": "^4.2.0",
+    "chalk": "^4.1.0",
+    "sharp": "^0.26.1",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
