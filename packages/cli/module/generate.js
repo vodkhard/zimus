@@ -3,23 +3,31 @@ const path = require('path');
 const sharp = require('sharp');
 const chalk = require('chalk');
 
-const handleFile = (filePath, outputPath) => {
+const handleFile = async (filePath, outputPath) => {
   const fileParsed = path.parse(filePath);
-  const pipe = sharp(filePath);
-  const outputFilePath = `${outputPath}/${fileParsed.name}_optimized`;
+  const image = sharp(filePath);
+  const outputFilePath = `${outputPath}/${fileParsed.name}`;
 
-  pipe.webp().toFile(`${outputFilePath}.webp`);
-  pipe.jpeg().toFile(`${outputFilePath}.jpeg`);
-  // pipe.heif({ quality: 80, compression: 'av1' }).toFile(`${outputFilePath}.heivc`);
+  image.jpeg({
+    quality: 70,
+    trellisQuantisation: true,
+    overshootDeringing: true,
+    optimizeScans: true,
+  }).toFile(`${outputFilePath}.jpeg`);
+  image.webp({ quality: 70 }).toFile(`${outputFilePath}.webp`);
+  image.heif({ quality: 30, compression: 'av1' }).toFile(`${outputFilePath}.avif`);
 };
 
-const handleDir = async (dirPath, outputPath) => {
+const handleDir = async (dirPath, output) => {
+  const outputPath = `${dirPath}/${output}`;
+  await fsPromises.mkdir(outputPath, { recursive: true });
+
   const files = await fsPromises.readdir(dirPath, { withFileTypes: true });
   files.forEach((file) => {
     if (file.isFile()) {
       console.info(`Processing : ${chalk.bgGreenBright(file.name)}`);
       handleFile(`${dirPath}/${file.name}`, outputPath);
-    } else if (file.isDirectory()) {
+    } else if (file.isDirectory() && file.name !== output) {
       console.info(chalk.bgYellowBright(`Processing directory : ${file.name}`));
       handleDir(`${dirPath}/${file}`, outputPath);
     }
@@ -29,12 +37,8 @@ const handleDir = async (dirPath, outputPath) => {
 const handler = async (argv) => {
   const { source, output } = argv;
   const dirPath = await fsPromises.realpath(source);
-  const outputPath = `${dirPath}/${output}`;
 
-  // Create output directory
-  await fsPromises.mkdir(outputPath, { recursive: true });
-
-  handleDir(dirPath, outputPath);
+  handleDir(dirPath, output);
 };
 
 module.exports = {
